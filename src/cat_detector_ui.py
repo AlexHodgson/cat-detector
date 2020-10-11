@@ -1,5 +1,6 @@
 '''
 UI For the cat picture detector
+Base window built with Wx Form Builder
 '''
 import os
 
@@ -7,9 +8,6 @@ import wx
 import wx.xrc
 
 import detector_backend as cat
-
-# Global Variables
-
 
 class frameMain ( wx.Frame ):
 
@@ -127,6 +125,7 @@ class frameMain ( wx.Frame ):
 		else:
 			self.files_to_scan = os.listdir(self.folder_to_search)
 
+	# Click the detect cat button
 	def buttonDetectOnButtonClick( self, event ):
 
 		if (self.folder_to_search):
@@ -194,9 +193,6 @@ class frameMain ( wx.Frame ):
 				allFiles.append(fullPath)
 					
 		return allFiles
-
-
-
 
 if __name__ == "__main__":
     app = wx.App(False)
