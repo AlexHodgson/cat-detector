@@ -52,7 +52,7 @@ def get_prediction(img, threshold):
         pred_class = pred_class[:pred_t+1]
     return pred_boxes, pred_class
 
-def find_cats(root_dir: str, files: list[str], threshold: float = 0.6):
+def find_cats(root_dir: str, files: list, threshold: float = 0.6):
     '''
     Sends images to a neural network to check if they contain cats
 
@@ -80,37 +80,37 @@ def find_cats(root_dir: str, files: list[str], threshold: float = 0.6):
 
     for f in files:
 
-    # Open images, resize, add to batch on GPU
-    try:
-        img = cv2.imread(os.path.join(root_dir,f))
-        img = cv2.resize(img, (256,256))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        transform = T.Compose([T.ToTensor()])
-        img = transform(img).to(device)
+        # Open images, resize, add to batch on GPU
+        try:
+            img = cv2.imread(os.path.join(root_dir,f))
+            img = cv2.resize(img, (256,256))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            transform = T.Compose([T.ToTensor()])
+            img = transform(img).to(device)
 
-        batch.append(img)
-        batch_names.append(f)
+            batch.append(img)
+            batch_names.append(f)
 
-    except Exception as e:
-        print(str(e))
-        pass
+        except Exception as e:
+            print(str(e))
+            pass
 
-    # Send batch to neural network
-    if len(batch) == BATCH_SIZE or f == files[-1]:
+        # Send batch to neural network
+        if len(batch) == BATCH_SIZE or f == files[-1]:
 
-        classes = []
-        
-        for img in batch:
-            classes.append(get_prediction([img], threshold)[1])
+            classes = []
+            
+            for img in batch:
+                classes.append(get_prediction([img], threshold)[1])
 
-        # Save names of files with cats
-        for i in range(len(classes)):
-            if 'cat' in classes[i]:
-                cat_pics.append(batch_names[i])
+            # Save names of files with cats
+            for i in range(len(classes)):
+                if 'cat' in classes[i]:
+                    cat_pics.append(batch_names[i])
 
-        # Reset batch
-        batch = []
-        batch_names=[]
+            # Reset batch
+            batch = []
+            batch_names=[]
 
     return cat_pics
 
