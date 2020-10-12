@@ -19,11 +19,6 @@ class frameMain ( wx.Frame ):
 		self.files_with_cats = list # Images containing cats
 
 		wx.Frame.__init__ ( self, parent=None, id = wx.ID_ANY, title = u"Cat Detector", pos = wx.DefaultPosition, size = wx.Size( 750,535 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
-		
-		
-		path = os.getcwd()
-		parent_path = os.path.abspath(os.path.join(path, os.pardir))
-
 		self.SetIcon(wx.Icon("media/icon_cat.png"))
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
@@ -122,18 +117,31 @@ class frameMain ( wx.Frame ):
 
 
 	# Event Handlers
+
+	# New directory chosen
 	def m_dirPicker1OnDirChanged( self, event):
 		self.folder_to_search = event.GetPath()
-		print(self.folder_to_search)
-
-		if (self.recursive_search):
-			self.files_to_scan = self.getListOfFiles(self.folder_to_search)
-		else:
-			self.files_to_scan = os.listdir(self.folder_to_search)
 
 	# Click the detect cat button
 	def buttonDetectOnButtonClick( self, event ):
 
+		# Make list of candiate files
+		if (self.recursive_search):
+			absFiles = self.getListOfFiles(self.folder_to_search)
+
+			# Change to relative paths
+			relFiles = list()
+			for f in absFiles:
+				relFiles.append(os.path.relpath(f, start = self.folder_to_search))
+
+			self.files_to_scan = relFiles
+		else:
+			self.files_to_scan = os.listdir(self.folder_to_search)
+			
+
+
+
+		# Send to NN
 		if (self.folder_to_search):
 			self.files_with_cats = self.detect_cats()
 
@@ -172,11 +180,15 @@ class frameMain ( wx.Frame ):
 		Img = Img.Scale(NewW,NewH)
  
 		# convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
-		self.bitmap1.SetBitmap(wx.BitmapFromImage(Img))
+		self.bitmap1.SetBitmap(wx.Bitmap(Img)) # wx.BitmapFromImage
 
 	# Toggle recursive file search
 	def settingsMenu_recursiveOnMenuSelection( self, event ):
-		event.Skip()
+		
+		if self.settingsMenu_recursive.IsChecked():
+			self.recursive_search = True
+		else:
+			self.recursive_search = False
 
 	# Call cat detection
 	def detect_cats(self):
@@ -194,10 +206,10 @@ class frameMain ( wx.Frame ):
 			fullPath = os.path.join(dirName, entry)
 			# If entry is a directory then get the list of files in this directory 
 			if os.path.isdir(fullPath):
-				allFiles = allFiles + getListOfFiles(fullPath)
+				allFiles = allFiles + self.getListOfFiles(fullPath)
 			else:
 				allFiles.append(fullPath)
-					
+
 		return allFiles
 
 if __name__ == "__main__":
