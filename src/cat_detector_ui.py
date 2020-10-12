@@ -19,6 +19,12 @@ class frameMain ( wx.Frame ):
 		self.files_with_cats = list # Images containing cats
 
 		wx.Frame.__init__ ( self, parent=None, id = wx.ID_ANY, title = u"Cat Detector", pos = wx.DefaultPosition, size = wx.Size( 750,535 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		
+		
+		path = os.getcwd()
+		parent_path = os.path.abspath(os.path.join(path, os.pardir))
+
+		self.SetIcon(wx.Icon("media/icon_cat.png"))
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
