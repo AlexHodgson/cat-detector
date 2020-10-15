@@ -3,6 +3,7 @@ UI For the cat picture detector
 Base window built with Wx Form Builder
 '''
 import os
+import threading
 
 import wx
 import wx.xrc
@@ -108,7 +109,7 @@ class frameMain ( wx.Frame ):
 
 		# Connect Events
 		self.m_dirPicker1.Bind( wx.EVT_DIRPICKER_CHANGED, self.m_dirPicker1OnDirChanged )
-		self.buttonDetect.Bind( wx.EVT_BUTTON, self.buttonDetectOnButtonClick )
+		self.buttonDetect.Bind( wx.EVT_BUTTON, self.buttonDetectOnButtonClick)
 		self.m_listBox1.Bind( wx.EVT_LISTBOX, self.m_listBox1OnListBox )
 		self.Bind( wx.EVT_MENU, self.settingsMenu_recursiveOnMenuSelection, id = self.settingsMenu_recursive.GetId() )
 
@@ -123,7 +124,7 @@ class frameMain ( wx.Frame ):
 		self.folder_to_search = event.GetPath()
 
 	# Click the detect cat button
-	def buttonDetectOnButtonClick( self, event ):
+	def buttonDetectOnButtonClick( self, event):
 
 		# Make list of candiate files
 		if (self.recursive_search):
