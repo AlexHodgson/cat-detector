@@ -15,6 +15,8 @@ class frameMain ( wx.Frame ):
 	def __init__( self):
 
 		self.recursive_search: bool = False  # If subfolders are searched for cat pics
+		self.hardware_acceleration: bool = True # If program will attempt hardware acceleration
+
 		self.folder_to_search: str # Folder to inspect for cats
 		self.files_to_scan = list # Files to scan for cats
 		self.files_with_cats = list # Images containing cats
@@ -91,10 +93,15 @@ class frameMain ( wx.Frame ):
 		self.menuDetect = wx.Menu()
 		self.m_menubar1.Append( self.menuDetect, u"Detect Cats" )
 
+		# Settings menu
 		self.menuSettings = wx.Menu()
 		self.settingsMenu_recursive = wx.MenuItem( self.menuSettings, wx.ID_ANY, u"Search Subfolders", wx.EmptyString, wx.ITEM_CHECK )
 		self.menuSettings.Append( self.settingsMenu_recursive )
 		self.settingsMenu_recursive.Check( self.recursive_search )
+
+		self.settingsMenu_hardwareAcceleration = wx.MenuItem( self.menuSettings, wx.ID_ANY, u"Hardware Acceleration", wx.EmptyString, wx.ITEM_CHECK )
+		self.menuSettings.Append( self.settingsMenu_hardwareAcceleration )
+		self.settingsMenu_hardwareAcceleration.Check( self.hardware_acceleration )
 
 		self.m_menubar1.Append( self.menuSettings, u"Settings" )
 
@@ -111,7 +118,8 @@ class frameMain ( wx.Frame ):
 		self.m_dirPicker1.Bind( wx.EVT_DIRPICKER_CHANGED, self.m_dirPicker1OnDirChanged )
 		self.buttonDetect.Bind( wx.EVT_BUTTON, self.buttonDetectOnButtonClick)
 		self.m_listBox1.Bind( wx.EVT_LISTBOX, self.m_listBox1OnListBox )
-		self.Bind( wx.EVT_MENU, self.settingsMenu_recursiveOnMenuSelection, id = self.settingsMenu_recursive.GetId() )
+		self.Bind( wx.EVT_MENU, self.settingsMenu_recursive_OnMenuSelection, id = self.settingsMenu_recursive.GetId() )
+		self.Bind( wx.EVT_MENU, self.settingsMenu_hardwareAcceleration_OnMenuSelection, id = self.settingsMenu_hardwareAcceleration.GetId() )
 
 	def __del__( self ):
 		pass
@@ -184,12 +192,22 @@ class frameMain ( wx.Frame ):
 		self.bitmap1.SetBitmap(wx.Bitmap(Img)) # wx.BitmapFromImage
 
 	# Toggle recursive file search
-	def settingsMenu_recursiveOnMenuSelection( self, event ):
+	def settingsMenu_recursive_OnMenuSelection( self, event ):
 		
 		if self.settingsMenu_recursive.IsChecked():
 			self.recursive_search = True
 		else:
 			self.recursive_search = False
+
+	# Toggle hardware Acceleration
+	def settingsMenu_hardwareAcceleration_OnMenuSelection( self, event):
+
+		if self.settingsMenu_hardwareAcceleration.IsChecked():
+			self.hardware_acceleration = True
+		else:
+			self.hardware_acceleration = False
+
+		cat.set_device(self.hardware_acceleration)
 
 	# Call cat detection
 	def detect_cats(self):
