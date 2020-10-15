@@ -67,7 +67,7 @@ def get_prediction(img, threshold):
     Could also provide bounding boxes
     '''
 
-    # FIXME This is a very dumb way to do it, figure out why updating device outside the function isn't working
+    # FIXME This is a very dumb way to put the neural net on the selected device, figure out why updating device outside the function isn't working
     model.to(device.device)
     model.eval()
 
