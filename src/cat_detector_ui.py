@@ -207,7 +207,7 @@ class frameMain ( wx.Frame ):
 		else:
 			self.hardware_acceleration = False
 
-		cat.set_device(self.hardware_acceleration)
+		cat.device.set_device(self.hardware_acceleration)
 
 	# Call cat detection
 	def detect_cats(self):

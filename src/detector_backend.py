@@ -5,17 +5,43 @@ import torch
 import torchvision
 import torchvision.transforms as T
 
-# Choose where to run the net
-if torch.cuda.is_available():
-    device = torch.device("cuda:0")
-else:
-    device = torch.device("cpu")
+class Device:
 
-print("Using Device: " , device)
+    def __init__(self):
 
+        # Choose where to run the net
+        #Default to GPU if avaliable
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda:0")
+        else:
+            self.device = torch.device("cpu")
+
+        print("Using Device: " , self.device)
+
+
+    def set_device(self, hardware_acceleration: bool):
+        '''
+        Changes where the calculations are being run between cpu and gpu
+
+        hardware_acceleration: bool
+        If the program will look for a gpu to do acceleration on
+        '''
+        
+        if hardware_acceleration and torch.cuda.is_available():
+            self.device = torch.device("cuda:0")
+        else:
+            self.device = torch.device("cpu")
+
+        model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+        model.to(self.device)
+        model.eval()
+
+        print("Using Device: " , self.device)
+
+device = Device()
 # Prepare neural network
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-model.to(device)
+model.to(device.device)
 model.eval()
 
 # Names corresponding to labels from net
@@ -34,11 +60,16 @@ COCO_INSTANCE_CATEGORY_NAMES = [
     'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ] 
 
+
 def get_prediction(img, threshold):
     '''
     Pass an image to the network to get prediction of objects in it
     Could also provide bounding boxes
     '''
+
+    # FIXME This is a very dumb way to do it, figure out why updating device outside the function isn't working
+    model.to(device.device)
+    model.eval()
 
     pred = model(img) # Pass the images to the model
     pred_class = [COCO_INSTANCE_CATEGORY_NAMES[i] for i in list(pred[0]['labels'].cpu().numpy())] # Get the Prediction Score
@@ -67,7 +98,12 @@ def find_cats(root_dir: str, files: list, threshold: float = 0.6):
     Must be between 0 and 1
     Default = 0.6
 
+    hardware_acceleration: bool
+    If the program will look for a gpu to do calculations on
+    Default = True
     '''
+
+    print("Using Device: " , device.device)
 
     if threshold < 0 or threshold > 1:
         raise ValueError("Threshold must be between 0 and 1")
@@ -86,7 +122,7 @@ def find_cats(root_dir: str, files: list, threshold: float = 0.6):
             img = cv2.resize(img, (256,256))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             transform = T.Compose([T.ToTensor()])
-            img = transform(img).to(device)
+            img = transform(img).to(device.device)
 
             batch.append(img)
             batch_names.append(f)
